@@ -1,0 +1,83 @@
+
+R version 3.4.1 (2017-06-30) -- "Single Candle"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> rm(list = ls())
+> 
+> library(plyr)  #round_any
+> library(dplyr)  #full_join
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:plyr’:
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Warning message:
+package ‘dplyr’ was built under R version 3.4.4 
+> library(ggplot2)
+Warning message:
+package ‘ggplot2’ was built under R version 3.4.4 
+> library(RVAideMemoire)
+*** Package RVAideMemoire v 0.9-69-3 ***
+
+NOTE: stop using package lsmeans and change to package emmeans, its new version
+
+Warning message:
+package ‘RVAideMemoire’ was built under R version 3.4.4 
+> cbPalette <- c("#D55E00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#E69F00", "#CC79A7", "#999999")
+> 
+> basalDF <- read.table("/Users/wei-chinho/Documents/MURI2/201_hmm/hmm_all_summary/list_basal_fixed_alleles.txt", header=T)
+> major_minor_DF  <- read.table("/Users/wei-chinho/Documents/MURI2/201_hmm/hmm_all_summary/list_major_minor_clade_fixed_alleles.txt", header=T)
+> 
+> basalDF <- cbind(basalDF, pop_100=floor(basalDF$pop/100))
+> major_minor_DF <- cbind(major_minor_DF, pop_100=floor(major_minor_DF$pop/100))
+> 
+> basalDF <- cbind(basalDF, day=round_any(basalDF$fixedTP/((basalDF$pop_100==1)*3.3+(basalDF$pop_100==2)*3.3*4+(basalDF$pop_100==3)*3.3*7+(basalDF$pop_100==4)*0.33+(basalDF$pop_100==5)*0.22),10))
+> major_minor_DF <- cbind(major_minor_DF, day=round_any(major_minor_DF$fixedTP/((major_minor_DF$pop_100==1)*3.3+(major_minor_DF$pop_100==2)*3.3*4+(major_minor_DF$pop_100==3)*3.3*7+(major_minor_DF$pop_100==4)*0.33+(major_minor_DF$pop_100==5)*0.22),10))
+> 
+> basalCount <- aggregate(pos~pop+pop_type+day, data=basalDF[,c("pop","pop_type","day","pos")], FUN=length)
+> major_minor_Count <- aggregate(pos~pop+pop_type+day, data=major_minor_DF[,c("pop","pop_type","day","pos")], FUN=length)
+> 
+> colnames(basalCount)[which(colnames(basalCount)=="pos")] <- "num_fixed_basal"
+> colnames(major_minor_Count)[which(colnames(major_minor_Count)=="pos")] <- "num_fixed_major_minor"
+> 
+> allCount <- full_join(basalCount,major_minor_Count, by=c("pop","pop_type","day"))
+> allCount <- allCount[order(allCount$pop, allCount$day),]
+> 
+> allCount$num_fixed_basal[which(is.na(allCount$num_fixed_basal))]<-0
+> allCount$num_fixed_major_minor[which(is.na(allCount$num_fixed_major_minor))]<-0
+> 
+> allCount <- cbind(allCount, ratio=allCount$num_fixed_basal/(allCount$num_fixed_basal+allCount$num_fixed_major_minor))
+> 
+> write.table(allCount,"/Users/wei-chinho/Documents/MURI2/201_hmm/hmm_all_summary/calculate_num_fixed_basal_byTP.out")
+> 
+> proc.time()
+   user  system elapsed 
+  2.606   0.172   5.130 

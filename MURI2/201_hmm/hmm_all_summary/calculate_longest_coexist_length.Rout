@@ -1,0 +1,208 @@
+
+R version 3.4.1 (2017-06-30) -- "Single Candle"
+Copyright (C) 2017 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> rm(list = ls())
+> 
+> library(plyr)  #round_any
+> 
+> summary <- read.table('/Users/wei-chinho/Documents/MURI2/201_hmm/hmm_all_summary/summary.txt', header=T)
+> 
+> outDF <- data.frame(pop=summary$pop, num_TP=summary$num_TP, pop_type=summary$pop_type,out=summary$out, max_coexist_length=NA, begin=NA, end=NA)
+> 
+> for (i in 1:120){
++   pop <- summary$pop[i]
++   mc_len <- 0
++   myBegin <- 0
++   myEnd <- 0
++   if(pop!=208 & pop!=224){
++     pop_100 <- round(pop/100)
++     print(pop)
++     if(summary$out[i]!=-1){
++       myHaplotypeDF <- read.table(paste0('/Users/wei-chinho/Documents/MURI2/00_data/server/weiho/annotated_timecourse/',pop,'_haplotype_timecourse.txt'), sep=",")
++       nTP <- ncol(myHaplotypeDF)
++       myGen <- as.numeric(myHaplotypeDF[1,1:nTP])
++       myMajorCladeFreq <- as.numeric(myHaplotypeDF[2,1:nTP])
++       myMinorCladeFreq <- as.numeric(myHaplotypeDF[3,1:nTP])
++       myDay <- round_any(myGen/((pop_100==1)*3.3+(pop_100==2)*3.3*4+(pop_100==3)*3.3*7+(pop_100==4)*0.33+(pop_100==5)*0.25),10)
++ 
++       strong_coexist_property <- (myMajorCladeFreq>0.20) & (myMajorCladeFreq<0.80) & (myMinorCladeFreq>0.20) & (myMinorCladeFreq<0.80) #time point evident for both clade 
++       
++       if(sum(strong_coexist_property)>0){
++         weak_coexist_property <- ((myMajorCladeFreq>0.01) & (myMajorCladeFreq<0.99)) | ((myMinorCladeFreq>0.01) & (myMinorCladeFreq<0.99)) #time point evident for at least one clade 
++      
++         #test data
++         #myGen <- c(0,297,660,990,1320,1650,2310,2640)
++         #weak_coexist_property <- c(F,T,F,T,F,T,F,T,F,T)
++         #weak_coexist_property <- c(F,T,T,T,F,T,T,F,F,T)
++         #weak_coexist_property <- c(F,T,T,T,F,T,T,T,F,F)
++         count_consecutive_weak_coexist_property <- rep(0,length(weak_coexist_property))
++       
++         for (t in 2:(nTP-1)){
++           if(weak_coexist_property[t] == TRUE){
++             for(t_end in (t+1):nTP){
++               if(weak_coexist_property[t_end] == TRUE){
++                 count_consecutive_weak_coexist_property[t] <- (myGen[t_end]-myGen[t])
++               }else{
++                 break
++               }
++             }
++           }
++         }
++       
++         mc_len <- max(count_consecutive_weak_coexist_property)
++         myBegin <- myGen[which(count_consecutive_weak_coexist_property==mc_len)]
++         myEnd <- myBegin+mc_len
++       }
++     }
++     outDF$max_coexist_length[i] <- mc_len
++     outDF$begin[i] <- myBegin
++     outDF$end[i] <- myEnd
++   }
++ }
+[1] 101
+[1] 102
+[1] 103
+[1] 104
+[1] 105
+[1] 106
+[1] 107
+[1] 108
+[1] 109
+[1] 110
+[1] 111
+[1] 112
+[1] 113
+[1] 114
+[1] 115
+[1] 116
+[1] 117
+[1] 118
+[1] 119
+[1] 120
+[1] 121
+[1] 122
+[1] 123
+[1] 124
+[1] 201
+[1] 202
+[1] 203
+[1] 204
+[1] 205
+[1] 206
+[1] 207
+[1] 209
+[1] 210
+[1] 211
+[1] 212
+[1] 213
+[1] 214
+[1] 215
+[1] 216
+[1] 217
+[1] 218
+[1] 219
+[1] 220
+[1] 221
+[1] 222
+[1] 223
+[1] 301
+[1] 302
+[1] 303
+[1] 304
+[1] 305
+[1] 306
+[1] 307
+[1] 308
+[1] 309
+[1] 310
+[1] 311
+[1] 312
+[1] 313
+[1] 314
+[1] 315
+[1] 316
+[1] 317
+[1] 318
+[1] 319
+[1] 320
+[1] 321
+[1] 322
+[1] 323
+[1] 324
+[1] 401
+[1] 402
+[1] 403
+[1] 404
+[1] 405
+[1] 406
+[1] 407
+[1] 408
+[1] 409
+[1] 410
+[1] 411
+[1] 412
+[1] 413
+[1] 414
+[1] 415
+[1] 416
+[1] 417
+[1] 418
+[1] 419
+[1] 420
+[1] 421
+[1] 422
+[1] 423
+[1] 424
+[1] 501
+[1] 502
+[1] 503
+[1] 504
+[1] 505
+[1] 506
+[1] 507
+[1] 508
+[1] 509
+[1] 510
+[1] 511
+[1] 512
+[1] 513
+[1] 514
+[1] 515
+[1] 516
+[1] 517
+[1] 518
+[1] 519
+[1] 520
+[1] 521
+[1] 522
+[1] 523
+[1] 524
+Warning messages:
+1: In outDF$begin[i] <- myBegin :
+  number of items to replace is not a multiple of replacement length
+2: In outDF$end[i] <- myEnd :
+  number of items to replace is not a multiple of replacement length
+> 
+> write.table(outDF,"/Users/wei-chinho/Documents/MURI2/201_hmm/hmm_all_summary/calculate_longest_coexist_length.out")
+> 
+> proc.time()
+   user  system elapsed 
+  1.585   0.078   2.670 
