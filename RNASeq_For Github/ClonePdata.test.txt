@@ -1,0 +1,9 @@
+id	treatment	condition
+403_A_36h	stat	CloneA
+403_A_Mid	mid	CloneA
+403_B_36h	stat	CloneB
+403_B_Mid	mid	CloneB
+WT_36h	stat	ancestor
+WT_36h_BGI	stat	ancestor
+WT_Mid	mid	ancestor
+WT_Mid_BGI	mid	ancestor
